@@ -6,6 +6,7 @@ function renderExpenseItem(itemData) {
 
   return (
     <ExpenseItem
+      id={item.id}
       description={item.description}
       amount={item.amount}
       date={item.date}
