@@ -1,14 +1,17 @@
-import { useLayoutEffect } from "react";
+import { useLayoutEffect, useContext } from "react";
 import { View, StyleSheet } from "react-native";
 
 import { GlobalStyles } from "../constants/styles";
 import IconButton from "../components/UI/IconButton";
 import Button from "../components/UI/Button";
 
+import { ExpensesContext } from "../store/expenses-context";
+
 function ManageExpense({ route, navigation }) {
   //* We check if there is some params and extract the expenseId if yes
   const editedExpenseId = route.params?.expenseId;
   const isEditing = !!editedExpenseId; // a JS trick to convert a value in a boolean
+  const expensesContext = useContext(ExpensesContext);
 
   //* Set the title according to what we want to do (Add a new expense or Edit existing one)
   useLayoutEffect(() => {
@@ -18,6 +21,7 @@ function ManageExpense({ route, navigation }) {
   }, [navigation, isEditing]);
 
   function deleteExpenseHandler() {
+    expensesContext.deleteExpense(editedExpenseId);
     navigation.goBack();
   }
 
@@ -25,7 +29,21 @@ function ManageExpense({ route, navigation }) {
     navigation.goBack();
   }
 
+  //TODO will be re-worked, for now just setting some dummy data
   function confirmHandler() {
+    if (isEditing) {
+      expensesContext.updateExpense(editedExpenseId, {
+        description: "UpdateTest",
+        amount: 22.99,
+        date: new Date("2023-3-5"),
+      });
+    } else {
+      expensesContext.addExpense({
+        description: "Test",
+        amount: 19.99,
+        date: new Date("2023-3-3"),
+      });
+    }
     navigation.goBack();
   }
 
