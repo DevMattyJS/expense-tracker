@@ -13,6 +13,10 @@ function ManageExpense({ route, navigation }) {
   const isEditing = !!editedExpenseId; // a JS trick to convert a value in a boolean
   const expensesContext = useContext(ExpensesContext);
 
+  const selectedExpense = expensesContext.expenses.find(
+    (expense) => expense.id === editedExpenseId
+  );
+
   //* Set the title according to what we want to do (Add a new expense or Edit existing one)
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -44,6 +48,7 @@ function ManageExpense({ route, navigation }) {
         submitButtonLabel={isEditing ? "Update" : "Add"}
         onCancel={cancelHandler}
         onSubmit={confirmHandler}
+        defaultValues={selectedExpense}
       />
 
       {isEditing ? (

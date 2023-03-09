@@ -4,12 +4,12 @@ import { View, Text, StyleSheet } from "react-native";
 import Input from "./Input";
 import Button from "../UI/Button";
 
-function ExpenseForm({ onCancel, onSubmit, submitButtonLabel }) {
+function ExpenseForm({ onCancel, onSubmit, submitButtonLabel, defaultValues }) {
   //* To avoid a need of 3 handler function (1 for each input) we set just 1 state, which will have the object as a value
   const [inputValues, setInputValues] = useState({
-    amount: "",
-    date: "",
-    description: "",
+    amount: defaultValues ? defaultValues.amount.toString() : "",
+    date: defaultValues ? defaultValues.date.toISOString().slice(0, 10) : "",
+    description: defaultValues ? defaultValues.description : "",
   });
 
   //* Then we have just 1 handler function, which updates the input value which was changed and keep the other 2 unchanged
