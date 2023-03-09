@@ -3,7 +3,25 @@ import { View, TextInput, Text, StyleSheet } from "react-native";
 import Input from "./Input";
 
 function ExpenseForm() {
-  function amountChangeHandler() {}
+  //* To avoid a need of 3 handler function (1 for each input) we set just 1 state, which will have the object as a value
+  const [inputValues, setInputValues] = useState({
+    amount: "",
+    date: "",
+    description: "",
+  });
+
+  //* Then we have just 1 handler function, which updates the input value which was changed and keep the other 2 unchanged
+  //* We set the 1st parameter (identifier) in each 'textInputConfig' with the help of 'bind method'
+  //* 'enteredValue' parameter is provided automaticaly by react-native
+  function inputChangeHandler(inputIdentifier, enteredValue) {
+    setInputValues((curInputValues) => {
+      return {
+        ...curInputValues,
+        //* this syntax => a value under the inputIdentifier will be updated
+        [inputIdentifier]: enteredValue,
+      };
+    });
+  }
 
   return (
     <View style={styles.form}>
@@ -14,7 +32,8 @@ function ExpenseForm() {
           label="Amount"
           textInputConfig={{
             keyboardType: "decimal-pad",
-            onChangeText: amountChangeHandler,
+            onChangeText: inputChangeHandler.bind(this, "amount"),
+            value: inputValues.amount,
           }}
         />
         <Input
@@ -23,7 +42,8 @@ function ExpenseForm() {
           textInputConfig={{
             placeholder: "YYYY-MM-DD",
             maxLength: 10,
-            onChangeText: () => {},
+            onChangeText: inputChangeHandler.bind(this, "date"),
+            value: inputValues.date,
           }}
         />
       </View>
@@ -32,6 +52,8 @@ function ExpenseForm() {
         textInputConfig={{
           multiline: true,
           autoCapitalize: "none",
+          onChangeText: inputChangeHandler.bind(this, "description"),
+          value: inputValues.description,
         }}
       />
     </View>
