@@ -1,8 +1,10 @@
-import { View, TextInput, Text, StyleSheet } from "react-native";
+import { useState } from "react";
+import { View, Text, StyleSheet } from "react-native";
 
 import Input from "./Input";
+import Button from "../UI/Button";
 
-function ExpenseForm() {
+function ExpenseForm({ onCancel, onSubmit, submitButtonLabel }) {
   //* To avoid a need of 3 handler function (1 for each input) we set just 1 state, which will have the object as a value
   const [inputValues, setInputValues] = useState({
     amount: "",
@@ -23,6 +25,16 @@ function ExpenseForm() {
     });
   }
 
+  function submitHandler() {
+    const expenseData = {
+      amount: +inputValues.amount,
+      date: new Date(inputValues.date),
+      description: inputValues.description,
+    };
+
+    onSubmit(expenseData);
+  }
+
   return (
     <View style={styles.form}>
       <Text style={styles.title}>Your Expense</Text>
@@ -31,7 +43,7 @@ function ExpenseForm() {
           style={styles.rowInput}
           label="Amount"
           textInputConfig={{
-            keyboardType: "decimal-pad",
+            keyboardType: "numeric",
             onChangeText: inputChangeHandler.bind(this, "amount"),
             value: inputValues.amount,
           }}
@@ -56,6 +68,14 @@ function ExpenseForm() {
           value: inputValues.description,
         }}
       />
+      <View style={styles.buttonsContainer}>
+        <Button style={styles.button} mode="flat" onPress={onCancel}>
+          Cancel
+        </Button>
+        <Button style={styles.button} onPress={submitHandler}>
+          {submitButtonLabel}
+        </Button>
+      </View>
     </View>
   );
 }
@@ -79,5 +99,14 @@ const styles = StyleSheet.create({
   },
   rowInput: {
     flex: 1,
+  },
+  buttonsContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  button: {
+    minWidth: 120,
+    marginHorizontal: 8,
   },
 });
