@@ -1,4 +1,4 @@
-import { useLayoutEffect, useContext } from "react";
+import { useLayoutEffect, useContext, useState } from "react";
 import { View, StyleSheet } from "react-native";
 
 import { GlobalStyles } from "../constants/styles";
@@ -7,12 +7,14 @@ import ExpenseForm from "../components/ManageExpense/ExpenseForm";
 import { storeExpense, updateExpense, deleteExpense } from "../util/http";
 
 import { ExpensesContext } from "../store/expenses-context";
+import LoadingOverlay from "../components/UI/LoadingOverlay";
 
 function ManageExpense({ route, navigation }) {
   //* We check if there is some params and extract the expenseId if yes
   const editedExpenseId = route.params?.expenseId;
   const isEditing = !!editedExpenseId; // a JS trick to convert a value in a boolean
   const expensesContext = useContext(ExpensesContext);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const selectedExpense = expensesContext.expenses.find(
     (expense) => expense.id === editedExpenseId
@@ -25,10 +27,13 @@ function ManageExpense({ route, navigation }) {
     });
   }, [navigation, isEditing]);
 
+  //* We storing the data in this app in a backend database, but also in a device memory (we can check our stored expenses when we are offline)
+  //* Therefore we need to update/delete the data from both stores
   async function deleteExpenseHandler() {
+    setIsSubmitting(true);
     await deleteExpense(editedExpenseId);
     expensesContext.deleteExpense(editedExpenseId);
-    navigation.goBack();
+    navigation.goBack(); // Since we close the screen after, we don't need to setIsSubmitting back to false
   }
 
   function cancelHandler() {
@@ -36,6 +41,7 @@ function ManageExpense({ route, navigation }) {
   }
 
   async function confirmHandler(expenseData) {
+    setIsSubmitting(true);
     if (isEditing) {
       expensesContext.updateExpense(editedExpenseId, expenseData);
       await updateExpense(editedExpenseId, expenseData);
@@ -44,6 +50,11 @@ function ManageExpense({ route, navigation }) {
       expensesContext.addExpense({ ...expenseData, id: id });
     }
     navigation.goBack();
+  }
+
+  //* Show Loading spinner when we adding/updating/deleting data
+  if (isSubmitting) {
+    return <LoadingOverlay />;
   }
 
   return (
