@@ -4,7 +4,7 @@ import { View, StyleSheet } from "react-native";
 import { GlobalStyles } from "../constants/styles";
 import IconButton from "../components/UI/IconButton";
 import ExpenseForm from "../components/ManageExpense/ExpenseForm";
-import { storeExpense } from "../util/http";
+import { storeExpense, updateExpense, deleteExpense } from "../util/http";
 
 import { ExpensesContext } from "../store/expenses-context";
 
@@ -25,7 +25,8 @@ function ManageExpense({ route, navigation }) {
     });
   }, [navigation, isEditing]);
 
-  function deleteExpenseHandler() {
+  async function deleteExpenseHandler() {
+    await deleteExpense(editedExpenseId);
     expensesContext.deleteExpense(editedExpenseId);
     navigation.goBack();
   }
@@ -37,6 +38,7 @@ function ManageExpense({ route, navigation }) {
   async function confirmHandler(expenseData) {
     if (isEditing) {
       expensesContext.updateExpense(editedExpenseId, expenseData);
+      await updateExpense(editedExpenseId, expenseData);
     } else {
       const id = await storeExpense(expenseData);
       expensesContext.addExpense({ ...expenseData, id: id });
