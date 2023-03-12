@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from "react";
-import { StyleSheet } from "react-native";
 import ExpensesOutput from "../components/ExpensesOutput/ExpensesOutput.js";
 import LoadingOverlay from "../components/UI/LoadingOverlay.js";
+import ErrorOverlay from "../components/UI/ErrorOverlay.js";
 
 import { ExpensesContext } from "../store/expenses-context.js";
 import { getDateMinusDays } from "../util/date.js";
@@ -9,6 +9,8 @@ import { fetchExpenses } from "../util/http.js";
 
 function RecentExpenses() {
   const [isFetching, setIsFetching] = useState(true);
+  const [error, setError] = useState();
+
   const expensesContext = useContext(ExpensesContext);
 
   useEffect(() => {
@@ -16,9 +18,13 @@ function RecentExpenses() {
     //* so we can await a result of fetchExpenses (whis is also a promise)
     async function getExpenses() {
       setIsFetching(true);
-      const expenses = await fetchExpenses();
+      try {
+        const expenses = await fetchExpenses();
+        expensesContext.setExpenses(expenses);
+      } catch (error) {
+        setError("Could not fetch expenses!");
+      }
       setIsFetching(false);
-      expensesContext.setExpenses(expenses);
     }
 
     getExpenses();
@@ -27,6 +33,10 @@ function RecentExpenses() {
   //* Render loading spinner when we fetching data
   if (isFetching) {
     return <LoadingOverlay />;
+  }
+
+  if (error && !isFetching) {
+    return <ErrorOverlay message={error} />;
   }
 
   const recentExpenses = expensesContext.expenses.filter((expenses) => {
@@ -46,5 +56,3 @@ function RecentExpenses() {
 }
 
 export default RecentExpenses;
-
-const styles = StyleSheet.create({});
